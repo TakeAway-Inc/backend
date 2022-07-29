@@ -1,0 +1,21 @@
+version: "2"
+
+services:
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: .
+    volumes:
+      - ./config.yaml:/config.yaml
+    depends_on:
+      - db
+    environment:
+      - DB_USER=postgres
+      - DB_PASS=password
+    ports:
+      - "80:80"
