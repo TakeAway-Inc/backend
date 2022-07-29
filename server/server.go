@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"backend/api"
-	"backend/db"
+	"github.com/TakeAway-Inc/backend/api"
+	"github.com/TakeAway-Inc/backend/db"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"

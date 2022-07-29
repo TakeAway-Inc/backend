@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"backend/db"
-	"backend/server"
+	"github.com/TakeAway-Inc/backend/db"
+	"github.com/TakeAway-Inc/backend/server"
 
 	"gopkg.in/yaml.v3"
 )

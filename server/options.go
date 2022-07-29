@@ -1,7 +1,7 @@
 package server
 
 import (
-	"backend/db"
+	"github.com/TakeAway-Inc/backend/db"
 )
 
 type Option func(server *Server)

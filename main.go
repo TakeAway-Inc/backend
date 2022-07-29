@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 
-	"backend/db"
-	"backend/server"
+	"github.com/TakeAway-Inc/backend/db"
+	"github.com/TakeAway-Inc/backend/server"
 
 	log "github.com/sirupsen/logrus"
 )

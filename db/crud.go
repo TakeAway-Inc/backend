@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 
-	"backend/api"
+	"github.com/TakeAway-Inc/backend/api"
 
 	"github.com/pkg/errors"
 )

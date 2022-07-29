@@ -1,4 +1,4 @@
-module backend
+module github.com/TakeAway-Inc/backend
 
 go 1.18
 
