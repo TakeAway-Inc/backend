@@ -1,0 +1,138 @@
+openapi: 3.0.3
+info:
+  title: Take Away API
+  description: Take Away
+  version: 0.0.0
+servers:
+  - url: 'http://localhost:8080'
+paths:
+  /api/menu/{restaurant_id}:
+    parameters:
+      - name: restaurant_id
+        in: path
+        description: Restaurant ID
+        required: true
+        schema:
+          type: string
+    get:
+      description: ''
+      responses:
+        200:
+          $ref: '#/components/responses/getRestaurantResponse'
+
+
+components:
+  responses:
+    getRestaurantResponse:
+      description: Full content of the restaurant's menu
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - categories
+              - dishes
+              - style
+            properties:
+              categories:
+                type: array
+                items:
+                  $ref: '#/components/schemas/category'
+              dishes:
+                description: Отсортированный список блюд
+                type: array
+                items:
+                  $ref: '#/components/schemas/dish'
+              style:
+                $ref: '#/components/schemas/restaurantStyle'
+  schemas:
+    currency:
+      type: string
+      enum:
+        - RUB
+      default: RUB
+
+    unavailableLabel:
+      type: object
+      description: Текст, который будет отображаться в случае отсутствия блюда в меню в данный момент
+      required:
+        - shownText
+      properties:
+        shownText:
+          type: string
+
+    dish:
+      type: object
+      description: Связь с `category` по `categoryId`
+      required:
+        - id
+        - shownName
+        - description
+        - previewImageUrl
+        - imageUrl
+        - categoryId
+        - price
+      properties:
+        id:
+          type: string
+          format: uuid
+        shownName:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        previewImageUrl:
+          type: string
+          format: uri
+        imageUrl:
+          type: string
+          format: uri
+        unavailableLabel:
+          $ref: '#/components/schemas/unavailableLabel'
+        categoryId:
+          type: string
+          format: uuid
+        price:
+          type: object
+          properties:
+            amount:
+              type: integer
+              minimum: 0
+            currency:
+              $ref: '#/components/schemas/currency'
+
+    category:
+      type: object
+      required:
+        - id
+        - shownName
+      properties:
+        id:
+          type: string
+          format: uuid
+        shownName:
+          type: string
+          minLength: 1
+
+    restaurantStyle:
+      type: object
+      required:
+        - id
+        - restaurantShownName
+        - iconUrl
+        - backgroundColor
+      properties:
+        id:
+          type: string
+          format: uuid
+        restaurantShownName:
+          type: string
+          minLength: 1
+        iconUrl:
+          type: string
+          format: uri
+        backgroundColor:
+          type: string
+          format: hexColor
+          example: "#ffffff"
+
