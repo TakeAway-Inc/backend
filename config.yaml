@@ -1,10 +1,10 @@
 db:
   driver: "postgres"
-  addr: "localhost"
+  addr: "db"
   port: 5432
   db: "postgres"
   user_env_key: DB_USER
   pass_env_key: DB_PASS
 
 server:
-  server_addr: "localhost:80"
+  server_addr: "0.0.0.0:80"

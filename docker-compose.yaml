@@ -8,10 +8,10 @@ services:
           POSTGRES_USER: mydbuser
           POSTGRES_PASSWORD: mydbpwd
       ports:
-          - "5432"
-      command: bash -c "cd migrations; goose postgres "user=mydbuser password=mydbpwd dbname=postgres sslmode=disable" up"
+          - "5432:5432"
   backend:
     build: .
+    command: bash -c "cd migrations; goose postgres "host=db user=mydbuser password=mydbpwd dbname=postgres sslmode=disable" up; cd .."
     volumes:
       - ./config.yaml:/config.yaml
     depends_on:

@@ -7,12 +7,12 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -o aboba
 
 
 # generate clean, final image for end users
-FROM alpine:latest
+FROM golang:1.18 as final
 COPY --from=builder /build/aboba .
 COPY migrations .
 
 RUN go install github.com/pressly/goose/v3/cmd/goose@latest
 
 # executable
-ENTRYPOINT [ "./aboba" ]
+ENTRYPOINT [ "./aboba", "-c", "/config.yaml" ]
 EXPOSE 80
