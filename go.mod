@@ -12,6 +12,7 @@ require (
 )
 
 require (
+	github.com/go-chi/cors v1.2.1 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.12.1 // indirect
