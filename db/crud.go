@@ -54,7 +54,7 @@ func (db *DB) GetDishes(ctx context.Context, restaurantId string) ([]api.Dish, e
 	var dishes []api.Dish
 
 	q := `
-		SELECT d.dish_id, d.dish_shown_name, d.dish_description, d.dish_price, d.dish_image_url
+		SELECT d.dish_id, d.category_id, d.dish_shown_name, d.dish_description, d.dish_price, d.dish_image_url, d.dish_image_url
 		FROM dish d
 			left join category c on c.category_id = d.category_id
 			left join restaurant r on r.restaurant_id = c.restaurant_id
@@ -68,7 +68,7 @@ func (db *DB) GetDishes(ctx context.Context, restaurantId string) ([]api.Dish, e
 
 	for rows.Next() {
 		var d api.Dish
-		err := rows.Scan(&d.Id, &d.ShownName, &d.Description, &d.Price.Amount, &d.ImageUrl)
+		err := rows.Scan(&d.Id, &d.CategoryId, &d.ShownName, &d.Description, &d.Price.Amount, &d.ImageUrl, &d.PreviewImageUrl)
 		if err != nil {
 			return dishes, errors.Wrap(err, "can't scan dish")
 		}
