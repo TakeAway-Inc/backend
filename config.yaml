@@ -8,7 +8,7 @@ db:
 
 server:
   server_addr: "0.0.0.0:8000"
-  static_url: "http://localhost/static"
+  static_url: "https://833a-90-154-71-64.eu.ngrok.io/static"
 
 #db:
 #  driver: "postgres"
