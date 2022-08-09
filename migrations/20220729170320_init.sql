@@ -1,7 +1,9 @@
 -- +goose Up
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 create table restaurant
 (
-    restaurant_id         uuid primary key,
+    restaurant_id         uuid primary key default uuid_generate_v4(),
     restaurant_shown_name text not null
 );
 
@@ -15,13 +17,13 @@ create table restaurant_style
 create table category
 (
     restaurant_id       uuid references restaurant (restaurant_id),
-    category_id         uuid primary key,
+    category_id         uuid primary key default uuid_generate_v4(),
     category_shown_name text not null
 );
 
 create table dish
 (
-    dish_id            uuid primary key,
+    dish_id            uuid primary key default uuid_generate_v4(),
     category_id        uuid references category (category_id),
     dish_shown_name    text    not null,
     dish_description   text    not null default '',

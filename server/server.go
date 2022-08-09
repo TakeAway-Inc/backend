@@ -1,6 +1,7 @@
 package server
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -16,6 +17,7 @@ import (
 
 type Server struct {
 	httpServer *http.Server
+	staticUrl  string
 
 	db *db.DB
 }
@@ -32,6 +34,7 @@ func (s *Server) Run() {
 
 type Config struct {
 	ServerAddr string `yaml:"server_addr"`
+	StaticUrl  string `yaml:"static_url"`
 }
 
 func NewServer(opts ...Option) *Server {
@@ -45,6 +48,7 @@ func NewServer(opts ...Option) *Server {
 const applicationJSONContentType = "application/json"
 
 func (s *Server) AddHTTPServer(c Config) {
+	s.staticUrl = c.StaticUrl
 
 	corsOptions := cors.Options{
 		// AllowedOrigins:   []string{"https://foo.com"}, // Use this to allow specific origin hosts
@@ -63,6 +67,9 @@ func (s *Server) AddHTTPServer(c Config) {
 
 	mux.Route("/", func(r chi.Router) {
 		r.Mount("/", api.Handler(s))
+		r.Mount("/static", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		}))
 	})
 
 	s.httpServer = &http.Server{
@@ -73,6 +80,14 @@ func (s *Server) AddHTTPServer(c Config) {
 
 func (s *Server) GetApiMenuRestaurantId(w http.ResponseWriter, r *http.Request, restaurantId string) {
 	ctx := r.Context()
+
+	restaurantId, err := s.db.GetRestaurantID(ctx, restaurantId)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	categories, err := s.db.GetCategories(ctx, restaurantId)
 	if err != nil {
 		fmt.Println(err)
@@ -97,8 +112,14 @@ func (s *Server) GetApiMenuRestaurantId(w http.ResponseWriter, r *http.Request, 
 		Style:      style,
 	}
 
-	if encErr := json.NewEncoder(w).Encode(resp); encErr != nil {
-		http.Error(w, encErr.Error(), http.StatusInternalServerError)
-		return
+	bb, err := json.Marshal(resp)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	bb = bytes.Replace(bb, []byte("%static%"), []byte(s.staticUrl), -1)
+
+	if _, err = w.Write(bb); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

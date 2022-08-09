@@ -7,4 +7,17 @@ db:
   pass_env_key: DB_PASS
 
 server:
-  server_addr: "0.0.0.0:80"
+  server_addr: "0.0.0.0:8000"
+  static_url: "http://localhost/static"
+
+#db:
+#  driver: "postgres"
+#  addr: "localhost"
+#  port: 5432
+#  db: "postgres"
+#  user_env_key: DB_USER
+#  pass_env_key: DB_PASS
+#
+#server:
+#  server_addr: "0.0.0.0:8000"
+#  static_url: "http://0.0.0.0:9000/static"

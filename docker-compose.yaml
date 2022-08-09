@@ -1,23 +1,53 @@
-version: "2"
+version: "3.7"
 
 services:
+  nginx:
+    image: nginx
+    volumes:
+#      - ./nginx_templates:/etc/nginx/templates
+      - ./nginx_templates/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"
+    environment:
+      - NGINX_HOST=localhost
+      - NGINX_PORT=80
+
   db:
-      image: postgres
-      environment:
-          POSTGRES_DB: postgres
-          POSTGRES_USER: mydbuser
-          POSTGRES_PASSWORD: mydbpwd
-      ports:
-          - "5432:5432"
+    image: postgres
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+  minio:
+    image: quay.io/minio/minio:RELEASE.2022-08-08T18-34-09Z
+    command: server /data --console-address ":9001"
+    expose:
+      - "9000"
+      - "9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
   backend:
     build: .
-    command: bash -c "cd migrations; goose postgres "host=db user=mydbuser password=mydbpwd dbname=postgres sslmode=disable" up; cd .."
+    #    command: bash -c "cd migrations; goose postgres "host=db user=mydbuser password=mydbpwd dbname=postgres sslmode=disable" up; cd .."
     volumes:
       - ./config.yaml:/config.yaml
     depends_on:
       - db
+      - minio
     environment:
-      - DB_USER=mydbuser
-      - DB_PASS=mydbpwd
+      - DB_USER=postgres
+      - DB_PASS=postgres
     ports:
-      - "80:80"
+      - "8000:8000"
+

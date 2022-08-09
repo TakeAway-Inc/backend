@@ -10,7 +10,7 @@ paths:
     parameters:
       - name: restaurant_id
         in: path
-        description: Restaurant ID
+        description: Restaurant ID or restaurant short name
         required: true
         schema:
           type: string
@@ -100,6 +100,22 @@ components:
               minimum: 0
             currency:
               $ref: '#/components/schemas/currency'
+        weight:
+          type: integer
+          minimum: 0
+        calories:
+          type: integer
+          minimum: 0
+        proteins:
+          type: integer
+          minimum: 0
+        fats:
+          type: integer
+          minimum: 0
+        carbohydrates:
+          type: integer
+          minimum: 0
+
 
     category:
       type: object

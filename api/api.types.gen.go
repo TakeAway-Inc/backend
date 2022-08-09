@@ -19,8 +19,11 @@ type Currency string
 
 // Связь с `category` по `categoryId`
 type Dish struct {
+	Calories        *int   `json:"calories,omitempty"`
+	Carbohydrates   *int   `json:"carbohydrates,omitempty"`
 	CategoryId      string `json:"categoryId"`
 	Description     string `json:"description"`
+	Fats            *int   `json:"fats,omitempty"`
 	Id              string `json:"id"`
 	ImageUrl        string `json:"imageUrl"`
 	PreviewImageUrl string `json:"previewImageUrl"`
@@ -28,10 +31,12 @@ type Dish struct {
 		Amount   *int      `json:"amount,omitempty"`
 		Currency *Currency `json:"currency,omitempty"`
 	} `json:"price"`
+	Proteins  *int   `json:"proteins,omitempty"`
 	ShownName string `json:"shownName"`
 
 	// Текст, который будет отображаться в случае отсутствия блюда в меню в данный момент
 	UnavailableLabel *UnavailableLabel `json:"unavailableLabel,omitempty"`
+	Weight           *int              `json:"weight,omitempty"`
 }
 
 // RestaurantStyle defines model for restaurantStyle.
