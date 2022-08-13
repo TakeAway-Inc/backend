@@ -39,6 +39,21 @@ type Dish struct {
 	Weight           *int              `json:"weight,omitempty"`
 }
 
+// Payment option
+type PaymentOption struct {
+	// Описание способа оплаты
+	Description string `json:"description"`
+
+	// Ссылка на изображение способа оплаты
+	ImageUrl string `json:"imageUrl"`
+
+	// Ссылка на переход на сайт платежной системы
+	PaymentForwardUrl *string `json:"paymentForwardUrl,omitempty"`
+
+	// Отображаемое название способа оплаты
+	ShownName string `json:"shownName"`
+}
+
 // RestaurantStyle defines model for restaurantStyle.
 type RestaurantStyle struct {
 	BackgroundColor     string `json:"backgroundColor"`
@@ -51,6 +66,9 @@ type RestaurantStyle struct {
 type UnavailableLabel struct {
 	ShownText string `json:"shownText"`
 }
+
+// GetPaymentOptionsResponse defines model for getPaymentOptionsResponse.
+type GetPaymentOptionsResponse []PaymentOption
 
 // GetRestaurantResponse defines model for getRestaurantResponse.
 type GetRestaurantResponse struct {

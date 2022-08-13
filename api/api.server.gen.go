@@ -15,7 +15,10 @@ import (
 type ServerInterface interface {
 
 	// (GET /api/menu/{restaurant_id})
-	GetApiMenuRestaurantId(w http.ResponseWriter, r *http.Request, restaurantId string)
+	GetRestaurantMenu(w http.ResponseWriter, r *http.Request, restaurantId string)
+
+	// (GET /api/payment/{restaurant_id})
+	GetRestaurantPaymentOptions(w http.ResponseWriter, r *http.Request, restaurantId string)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -27,8 +30,8 @@ type ServerInterfaceWrapper struct {
 
 type MiddlewareFunc func(http.HandlerFunc) http.HandlerFunc
 
-// GetApiMenuRestaurantId operation middleware
-func (siw *ServerInterfaceWrapper) GetApiMenuRestaurantId(w http.ResponseWriter, r *http.Request) {
+// GetRestaurantMenu operation middleware
+func (siw *ServerInterfaceWrapper) GetRestaurantMenu(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var err error
@@ -43,7 +46,33 @@ func (siw *ServerInterfaceWrapper) GetApiMenuRestaurantId(w http.ResponseWriter,
 	}
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetApiMenuRestaurantId(w, r, restaurantId)
+		siw.Handler.GetRestaurantMenu(w, r, restaurantId)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// GetRestaurantPaymentOptions operation middleware
+func (siw *ServerInterfaceWrapper) GetRestaurantPaymentOptions(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "restaurant_id" -------------
+	var restaurantId string
+
+	err = runtime.BindStyledParameter("simple", false, "restaurant_id", chi.URLParam(r, "restaurant_id"), &restaurantId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "restaurant_id", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetRestaurantPaymentOptions(w, r, restaurantId)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -167,7 +196,10 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	}
 
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/api/menu/{restaurant_id}", wrapper.GetApiMenuRestaurantId)
+		r.Get(options.BaseURL+"/api/menu/{restaurant_id}", wrapper.GetRestaurantMenu)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/payment/{restaurant_id}", wrapper.GetRestaurantPaymentOptions)
 	})
 
 	return r

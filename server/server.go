@@ -1,8 +1,6 @@
 package server
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -75,51 +73,5 @@ func (s *Server) AddHTTPServer(c Config) {
 	s.httpServer = &http.Server{
 		Handler: mux,
 		Addr:    c.ServerAddr,
-	}
-}
-
-func (s *Server) GetApiMenuRestaurantId(w http.ResponseWriter, r *http.Request, restaurantId string) {
-	ctx := r.Context()
-
-	restaurantId, err := s.db.GetRestaurantID(ctx, restaurantId)
-	if err != nil {
-		fmt.Println(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	categories, err := s.db.GetCategories(ctx, restaurantId)
-	if err != nil {
-		fmt.Println(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	dishes, err := s.db.GetDishes(ctx, restaurantId)
-	if err != nil {
-		fmt.Println(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	style, err := s.db.GetRestaurantStyle(ctx, restaurantId)
-	if err != nil {
-		fmt.Println(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	resp := api.GetRestaurantResponse{
-		Categories: categories,
-		Dishes:     dishes,
-		Style:      style,
-	}
-
-	bb, err := json.Marshal(resp)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-
-	bb = bytes.Replace(bb, []byte("%static%"), []byte(s.staticUrl), -1)
-
-	if _, err = w.Write(bb); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

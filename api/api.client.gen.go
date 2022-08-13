@@ -88,12 +88,15 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
-	// GetApiMenuRestaurantId request
-	GetApiMenuRestaurantId(ctx context.Context, restaurantId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// GetRestaurantMenu request
+	GetRestaurantMenu(ctx context.Context, restaurantId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetRestaurantPaymentOptions request
+	GetRestaurantPaymentOptions(ctx context.Context, restaurantId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
-func (c *Client) GetApiMenuRestaurantId(ctx context.Context, restaurantId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetApiMenuRestaurantIdRequest(c.Server, restaurantId)
+func (c *Client) GetRestaurantMenu(ctx context.Context, restaurantId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetRestaurantMenuRequest(c.Server, restaurantId)
 	if err != nil {
 		return nil, err
 	}
@@ -104,8 +107,20 @@ func (c *Client) GetApiMenuRestaurantId(ctx context.Context, restaurantId string
 	return c.Client.Do(req)
 }
 
-// NewGetApiMenuRestaurantIdRequest generates requests for GetApiMenuRestaurantId
-func NewGetApiMenuRestaurantIdRequest(server string, restaurantId string) (*http.Request, error) {
+func (c *Client) GetRestaurantPaymentOptions(ctx context.Context, restaurantId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetRestaurantPaymentOptionsRequest(c.Server, restaurantId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// NewGetRestaurantMenuRequest generates requests for GetRestaurantMenu
+func NewGetRestaurantMenuRequest(server string, restaurantId string) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -121,6 +136,40 @@ func NewGetApiMenuRestaurantIdRequest(server string, restaurantId string) (*http
 	}
 
 	operationPath := fmt.Sprintf("/api/menu/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetRestaurantPaymentOptionsRequest generates requests for GetRestaurantPaymentOptions
+func NewGetRestaurantPaymentOptionsRequest(server string, restaurantId string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "restaurant_id", runtime.ParamLocationPath, restaurantId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/payment/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -181,11 +230,14 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
-	// GetApiMenuRestaurantId request
-	GetApiMenuRestaurantIdWithResponse(ctx context.Context, restaurantId string, reqEditors ...RequestEditorFn) (*GetApiMenuRestaurantIdResponse, error)
+	// GetRestaurantMenu request
+	GetRestaurantMenuWithResponse(ctx context.Context, restaurantId string, reqEditors ...RequestEditorFn) (*GetRestaurantMenuResponse, error)
+
+	// GetRestaurantPaymentOptions request
+	GetRestaurantPaymentOptionsWithResponse(ctx context.Context, restaurantId string, reqEditors ...RequestEditorFn) (*GetRestaurantPaymentOptionsResponse, error)
 }
 
-type GetApiMenuRestaurantIdResponse struct {
+type GetRestaurantMenuResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *struct {
@@ -198,7 +250,7 @@ type GetApiMenuRestaurantIdResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r GetApiMenuRestaurantIdResponse) Status() string {
+func (r GetRestaurantMenuResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -206,31 +258,62 @@ func (r GetApiMenuRestaurantIdResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r GetApiMenuRestaurantIdResponse) StatusCode() int {
+func (r GetRestaurantMenuResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-// GetApiMenuRestaurantIdWithResponse request returning *GetApiMenuRestaurantIdResponse
-func (c *ClientWithResponses) GetApiMenuRestaurantIdWithResponse(ctx context.Context, restaurantId string, reqEditors ...RequestEditorFn) (*GetApiMenuRestaurantIdResponse, error) {
-	rsp, err := c.GetApiMenuRestaurantId(ctx, restaurantId, reqEditors...)
+type GetRestaurantPaymentOptionsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]PaymentOption
+}
+
+// Status returns HTTPResponse.Status
+func (r GetRestaurantPaymentOptionsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetRestaurantPaymentOptionsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// GetRestaurantMenuWithResponse request returning *GetRestaurantMenuResponse
+func (c *ClientWithResponses) GetRestaurantMenuWithResponse(ctx context.Context, restaurantId string, reqEditors ...RequestEditorFn) (*GetRestaurantMenuResponse, error) {
+	rsp, err := c.GetRestaurantMenu(ctx, restaurantId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseGetApiMenuRestaurantIdResponse(rsp)
+	return ParseGetRestaurantMenuResponse(rsp)
 }
 
-// ParseGetApiMenuRestaurantIdResponse parses an HTTP response from a GetApiMenuRestaurantIdWithResponse call
-func ParseGetApiMenuRestaurantIdResponse(rsp *http.Response) (*GetApiMenuRestaurantIdResponse, error) {
+// GetRestaurantPaymentOptionsWithResponse request returning *GetRestaurantPaymentOptionsResponse
+func (c *ClientWithResponses) GetRestaurantPaymentOptionsWithResponse(ctx context.Context, restaurantId string, reqEditors ...RequestEditorFn) (*GetRestaurantPaymentOptionsResponse, error) {
+	rsp, err := c.GetRestaurantPaymentOptions(ctx, restaurantId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetRestaurantPaymentOptionsResponse(rsp)
+}
+
+// ParseGetRestaurantMenuResponse parses an HTTP response from a GetRestaurantMenuWithResponse call
+func ParseGetRestaurantMenuResponse(rsp *http.Response) (*GetRestaurantMenuResponse, error) {
 	bodyBytes, err := ioutil.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &GetApiMenuRestaurantIdResponse{
+	response := &GetRestaurantMenuResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -244,6 +327,32 @@ func ParseGetApiMenuRestaurantIdResponse(rsp *http.Response) (*GetApiMenuRestaur
 			Dishes []Dish          `json:"dishes"`
 			Style  RestaurantStyle `json:"style"`
 		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetRestaurantPaymentOptionsResponse parses an HTTP response from a GetRestaurantPaymentOptionsWithResponse call
+func ParseGetRestaurantPaymentOptionsResponse(rsp *http.Response) (*GetRestaurantPaymentOptionsResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetRestaurantPaymentOptionsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []PaymentOption
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

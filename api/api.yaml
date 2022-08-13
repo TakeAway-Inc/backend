@@ -15,14 +15,40 @@ paths:
         schema:
           type: string
     get:
+      operationId: getRestaurantMenu
       description: ''
       responses:
         200:
           $ref: '#/components/responses/getRestaurantResponse'
 
+  /api/payment/{restaurant_id}:
+    parameters:
+      - name: restaurant_id
+        in: path
+        description: Restaurant ID or restaurant short name
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getRestaurantPaymentOptions
+      description: ''
+      responses:
+        200:
+          $ref: '#/components/responses/getPaymentOptionsResponse'
+
 
 components:
   responses:
+
+    getPaymentOptionsResponse:
+      description: ''
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/paymentOption'
+
     getRestaurantResponse:
       description: Full content of the restaurant's menu
       content:
@@ -46,6 +72,27 @@ components:
               style:
                 $ref: '#/components/schemas/restaurantStyle'
   schemas:
+    paymentOption:
+      type: object
+      description: Payment option
+      required:
+        - shownName
+        - description
+        - imageUrl
+      properties:
+        shownName:
+          type: string
+          description: Отображаемое название способа оплаты
+        description:
+          type: string
+          description: Описание способа оплаты
+        imageUrl:
+          type: string
+          description: Ссылка на изображение способа оплаты
+        paymentForwardUrl:
+          type: string
+          description: Ссылка на переход на сайт платежной системы
+
     currency:
       type: string
       enum:
