@@ -37,8 +37,92 @@ paths:
           $ref: '#/components/responses/getPaymentOptionsResponse'
 
 
+  /api/order:
+    post:
+      operationId: createOrder
+      description: ''
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/newOrder'
+      responses:
+        200:
+          $ref: '#/components/responses/createOrderResponse'
+
+  /api/order/{restaurant_id}:
+    parameters:
+      - name: restaurant_id
+        in: path
+        description: Restaurant ID or restaurant short name
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getOrdersOfRestaurantByID
+      description: ''
+      responses:
+        200:
+          $ref: '#/components/responses/getOrderResponse'
+
+  /api/order/{restaurant_id}/{order_id}:
+    parameters:
+      - name: restaurant_id
+        in: path
+        description: Restaurant ID or restaurant short name
+        required: true
+        schema:
+          type: string
+      - name: order_id
+        in: path
+        description: ID of order
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getOrderByID
+      description: ''
+      responses:
+        200:
+          $ref: '#/components/responses/getOrderResponse'
+    put:
+      operationId: updateOrderByBot
+      description: ''
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/updatedOrderByBot'
+      responses:
+        200:
+          description: ''
+
+
 components:
   responses:
+    getOrderResponse:
+      description: Order response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/order'
+
+    getOrdersResponse:
+      description: Order response
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/order'
+
+    createOrderResponse:
+      description: Order response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/order'
 
     getPaymentOptionsResponse:
       description: ''
@@ -71,7 +155,67 @@ components:
                   $ref: '#/components/schemas/dish'
               style:
                 $ref: '#/components/schemas/restaurantStyle'
+
   schemas:
+    updatedOrderByBot:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - created
+            - processing
+            - canceled
+            - done
+
+    newOrder:
+      type: object
+      required:
+        - positions
+      properties:
+        positions:
+          type: array
+          items:
+            $ref: '#/components/schemas/orderPosition'
+
+    order:
+      type: object
+      required:
+        - orderId
+        - restaurantId
+        - status
+        - positions
+        - comment
+      properties:
+        orderId:
+          type: string
+        restaurantId:
+          type: string
+        status:
+          type: string
+          enum:
+            - created
+            - processing
+            - canceled
+            - done
+        positions:
+          type: array
+          items:
+            $ref: '#/components/schemas/orderPosition'
+        comment:
+          type: string
+
+    orderPosition:
+      type: object
+      required:
+        - dish
+        - quantity
+      properties:
+        dish:
+          $ref: '#/components/schemas/dish'
+        quantity:
+          type: number
+
     paymentOption:
       type: object
       description: Payment option

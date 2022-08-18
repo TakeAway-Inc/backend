@@ -8,6 +8,28 @@ const (
 	CurrencyRUB Currency = "RUB"
 )
 
+// Defines values for OrderStatus.
+const (
+	OrderStatusCanceled OrderStatus = "canceled"
+
+	OrderStatusCreated OrderStatus = "created"
+
+	OrderStatusDone OrderStatus = "done"
+
+	OrderStatusProcessing OrderStatus = "processing"
+)
+
+// Defines values for UpdatedOrderByBotStatus.
+const (
+	UpdatedOrderByBotStatusCanceled UpdatedOrderByBotStatus = "canceled"
+
+	UpdatedOrderByBotStatusCreated UpdatedOrderByBotStatus = "created"
+
+	UpdatedOrderByBotStatusDone UpdatedOrderByBotStatus = "done"
+
+	UpdatedOrderByBotStatusProcessing UpdatedOrderByBotStatus = "processing"
+)
+
 // Category defines model for category.
 type Category struct {
 	Id        string `json:"id"`
@@ -39,6 +61,30 @@ type Dish struct {
 	Weight           *int              `json:"weight,omitempty"`
 }
 
+// NewOrder defines model for newOrder.
+type NewOrder struct {
+	Positions []OrderPosition `json:"positions"`
+}
+
+// Order defines model for order.
+type Order struct {
+	Comment      string          `json:"comment"`
+	OrderId      string          `json:"orderId"`
+	Positions    []OrderPosition `json:"positions"`
+	RestaurantId string          `json:"restaurantId"`
+	Status       OrderStatus     `json:"status"`
+}
+
+// OrderStatus defines model for Order.Status.
+type OrderStatus string
+
+// OrderPosition defines model for orderPosition.
+type OrderPosition struct {
+	// Связь с `category` по `categoryId`
+	Dish     Dish    `json:"dish"`
+	Quantity float32 `json:"quantity"`
+}
+
 // Payment option
 type PaymentOption struct {
 	// Описание способа оплаты
@@ -67,6 +113,20 @@ type UnavailableLabel struct {
 	ShownText string `json:"shownText"`
 }
 
+// UpdatedOrderByBot defines model for updatedOrderByBot.
+type UpdatedOrderByBot struct {
+	Status *UpdatedOrderByBotStatus `json:"status,omitempty"`
+}
+
+// UpdatedOrderByBotStatus defines model for UpdatedOrderByBot.Status.
+type UpdatedOrderByBotStatus string
+
+// CreateOrderResponse defines model for createOrderResponse.
+type CreateOrderResponse Order
+
+// GetOrderResponse defines model for getOrderResponse.
+type GetOrderResponse Order
+
 // GetPaymentOptionsResponse defines model for getPaymentOptionsResponse.
 type GetPaymentOptionsResponse []PaymentOption
 
@@ -78,3 +138,15 @@ type GetRestaurantResponse struct {
 	Dishes []Dish          `json:"dishes"`
 	Style  RestaurantStyle `json:"style"`
 }
+
+// CreateOrderJSONBody defines parameters for CreateOrder.
+type CreateOrderJSONBody NewOrder
+
+// UpdateOrderByBotJSONBody defines parameters for UpdateOrderByBot.
+type UpdateOrderByBotJSONBody UpdatedOrderByBot
+
+// CreateOrderJSONRequestBody defines body for CreateOrder for application/json ContentType.
+type CreateOrderJSONRequestBody CreateOrderJSONBody
+
+// UpdateOrderByBotJSONRequestBody defines body for UpdateOrderByBot for application/json ContentType.
+type UpdateOrderByBotJSONRequestBody UpdateOrderByBotJSONBody

@@ -17,6 +17,18 @@ type ServerInterface interface {
 	// (GET /api/menu/{restaurant_id})
 	GetRestaurantMenu(w http.ResponseWriter, r *http.Request, restaurantId string)
 
+	// (POST /api/order)
+	CreateOrder(w http.ResponseWriter, r *http.Request)
+
+	// (GET /api/order/{restaurant_id})
+	GetOrdersOfRestaurantByID(w http.ResponseWriter, r *http.Request, restaurantId string)
+
+	// (GET /api/order/{restaurant_id}/{order_id})
+	GetOrderByID(w http.ResponseWriter, r *http.Request, restaurantId string, orderId string)
+
+	// (PUT /api/order/{restaurant_id}/{order_id})
+	UpdateOrderByBot(w http.ResponseWriter, r *http.Request, restaurantId string, orderId string)
+
 	// (GET /api/payment/{restaurant_id})
 	GetRestaurantPaymentOptions(w http.ResponseWriter, r *http.Request, restaurantId string)
 }
@@ -47,6 +59,117 @@ func (siw *ServerInterfaceWrapper) GetRestaurantMenu(w http.ResponseWriter, r *h
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetRestaurantMenu(w, r, restaurantId)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// CreateOrder operation middleware
+func (siw *ServerInterfaceWrapper) CreateOrder(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateOrder(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// GetOrdersOfRestaurantByID operation middleware
+func (siw *ServerInterfaceWrapper) GetOrdersOfRestaurantByID(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "restaurant_id" -------------
+	var restaurantId string
+
+	err = runtime.BindStyledParameter("simple", false, "restaurant_id", chi.URLParam(r, "restaurant_id"), &restaurantId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "restaurant_id", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetOrdersOfRestaurantByID(w, r, restaurantId)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// GetOrderByID operation middleware
+func (siw *ServerInterfaceWrapper) GetOrderByID(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "restaurant_id" -------------
+	var restaurantId string
+
+	err = runtime.BindStyledParameter("simple", false, "restaurant_id", chi.URLParam(r, "restaurant_id"), &restaurantId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "restaurant_id", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "order_id" -------------
+	var orderId string
+
+	err = runtime.BindStyledParameter("simple", false, "order_id", chi.URLParam(r, "order_id"), &orderId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "order_id", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetOrderByID(w, r, restaurantId, orderId)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// UpdateOrderByBot operation middleware
+func (siw *ServerInterfaceWrapper) UpdateOrderByBot(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "restaurant_id" -------------
+	var restaurantId string
+
+	err = runtime.BindStyledParameter("simple", false, "restaurant_id", chi.URLParam(r, "restaurant_id"), &restaurantId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "restaurant_id", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "order_id" -------------
+	var orderId string
+
+	err = runtime.BindStyledParameter("simple", false, "order_id", chi.URLParam(r, "order_id"), &orderId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "order_id", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdateOrderByBot(w, r, restaurantId, orderId)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -197,6 +320,18 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/menu/{restaurant_id}", wrapper.GetRestaurantMenu)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/order", wrapper.CreateOrder)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/order/{restaurant_id}", wrapper.GetOrdersOfRestaurantByID)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/order/{restaurant_id}/{order_id}", wrapper.GetOrderByID)
+	})
+	r.Group(func(r chi.Router) {
+		r.Put(options.BaseURL+"/api/order/{restaurant_id}/{order_id}", wrapper.UpdateOrderByBot)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/payment/{restaurant_id}", wrapper.GetRestaurantPaymentOptions)
