@@ -19,12 +19,12 @@ func (s *Server) GetOrdersOfRestaurantByID(w http.ResponseWriter, r *http.Reques
 	panic("implement me")
 }
 
-func (s *Server) GetOrderByID(w http.ResponseWriter, r *http.Request, restaurantId string, orderId string) {
+func (s *Server) GetOrderByID(w http.ResponseWriter, r *http.Request, orderId string) {
 	// TODO implement me
 	panic("implement me")
 }
 
-func (s *Server) UpdateOrderByBot(w http.ResponseWriter, r *http.Request, restaurantId string, orderId string) {
+func (s *Server) UpdateOrderByBot(w http.ResponseWriter, r *http.Request, orderId string) {
 	// TODO implement me
 	panic("implement me")
 }

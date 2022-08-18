@@ -98,19 +98,19 @@ type ClientInterface interface {
 
 	CreateOrder(ctx context.Context, body CreateOrderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetOrdersOfRestaurantByID request
-	GetOrdersOfRestaurantByID(ctx context.Context, restaurantId string, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// GetOrderByID request
-	GetOrderByID(ctx context.Context, restaurantId string, orderId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetOrderByID(ctx context.Context, orderId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// UpdateOrderByBot request with any body
-	UpdateOrderByBotWithBody(ctx context.Context, restaurantId string, orderId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	UpdateOrderByBotWithBody(ctx context.Context, orderId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	UpdateOrderByBot(ctx context.Context, restaurantId string, orderId string, body UpdateOrderByBotJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	UpdateOrderByBot(ctx context.Context, orderId string, body UpdateOrderByBotJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetRestaurantPaymentOptions request
 	GetRestaurantPaymentOptions(ctx context.Context, restaurantId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetOrdersOfRestaurantByID request
+	GetOrdersOfRestaurantByID(ctx context.Context, restaurantId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) GetRestaurantMenu(ctx context.Context, restaurantId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -149,8 +149,8 @@ func (c *Client) CreateOrder(ctx context.Context, body CreateOrderJSONRequestBod
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetOrdersOfRestaurantByID(ctx context.Context, restaurantId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetOrdersOfRestaurantByIDRequest(c.Server, restaurantId)
+func (c *Client) GetOrderByID(ctx context.Context, orderId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetOrderByIDRequest(c.Server, orderId)
 	if err != nil {
 		return nil, err
 	}
@@ -161,8 +161,8 @@ func (c *Client) GetOrdersOfRestaurantByID(ctx context.Context, restaurantId str
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetOrderByID(ctx context.Context, restaurantId string, orderId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetOrderByIDRequest(c.Server, restaurantId, orderId)
+func (c *Client) UpdateOrderByBotWithBody(ctx context.Context, orderId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateOrderByBotRequestWithBody(c.Server, orderId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -173,20 +173,8 @@ func (c *Client) GetOrderByID(ctx context.Context, restaurantId string, orderId 
 	return c.Client.Do(req)
 }
 
-func (c *Client) UpdateOrderByBotWithBody(ctx context.Context, restaurantId string, orderId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUpdateOrderByBotRequestWithBody(c.Server, restaurantId, orderId, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) UpdateOrderByBot(ctx context.Context, restaurantId string, orderId string, body UpdateOrderByBotJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUpdateOrderByBotRequest(c.Server, restaurantId, orderId, body)
+func (c *Client) UpdateOrderByBot(ctx context.Context, orderId string, body UpdateOrderByBotJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateOrderByBotRequest(c.Server, orderId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -199,6 +187,18 @@ func (c *Client) UpdateOrderByBot(ctx context.Context, restaurantId string, orde
 
 func (c *Client) GetRestaurantPaymentOptions(ctx context.Context, restaurantId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetRestaurantPaymentOptionsRequest(c.Server, restaurantId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetOrdersOfRestaurantByID(ctx context.Context, restaurantId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetOrdersOfRestaurantByIDRequest(c.Server, restaurantId)
 	if err != nil {
 		return nil, err
 	}
@@ -283,54 +283,13 @@ func NewCreateOrderRequestWithBody(server string, contentType string, body io.Re
 	return req, nil
 }
 
-// NewGetOrdersOfRestaurantByIDRequest generates requests for GetOrdersOfRestaurantByID
-func NewGetOrdersOfRestaurantByIDRequest(server string, restaurantId string) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "restaurant_id", runtime.ParamLocationPath, restaurantId)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/order/%s", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
 // NewGetOrderByIDRequest generates requests for GetOrderByID
-func NewGetOrderByIDRequest(server string, restaurantId string, orderId string) (*http.Request, error) {
+func NewGetOrderByIDRequest(server string, orderId string) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "restaurant_id", runtime.ParamLocationPath, restaurantId)
-	if err != nil {
-		return nil, err
-	}
-
-	var pathParam1 string
-
-	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "order_id", runtime.ParamLocationPath, orderId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "order_id", runtime.ParamLocationPath, orderId)
 	if err != nil {
 		return nil, err
 	}
@@ -340,7 +299,7 @@ func NewGetOrderByIDRequest(server string, restaurantId string, orderId string) 
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/order/%s/%s", pathParam0, pathParam1)
+	operationPath := fmt.Sprintf("/api/orders/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -359,30 +318,23 @@ func NewGetOrderByIDRequest(server string, restaurantId string, orderId string) 
 }
 
 // NewUpdateOrderByBotRequest calls the generic UpdateOrderByBot builder with application/json body
-func NewUpdateOrderByBotRequest(server string, restaurantId string, orderId string, body UpdateOrderByBotJSONRequestBody) (*http.Request, error) {
+func NewUpdateOrderByBotRequest(server string, orderId string, body UpdateOrderByBotJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewUpdateOrderByBotRequestWithBody(server, restaurantId, orderId, "application/json", bodyReader)
+	return NewUpdateOrderByBotRequestWithBody(server, orderId, "application/json", bodyReader)
 }
 
 // NewUpdateOrderByBotRequestWithBody generates requests for UpdateOrderByBot with any type of body
-func NewUpdateOrderByBotRequestWithBody(server string, restaurantId string, orderId string, contentType string, body io.Reader) (*http.Request, error) {
+func NewUpdateOrderByBotRequestWithBody(server string, orderId string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "restaurant_id", runtime.ParamLocationPath, restaurantId)
-	if err != nil {
-		return nil, err
-	}
-
-	var pathParam1 string
-
-	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "order_id", runtime.ParamLocationPath, orderId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "order_id", runtime.ParamLocationPath, orderId)
 	if err != nil {
 		return nil, err
 	}
@@ -392,7 +344,7 @@ func NewUpdateOrderByBotRequestWithBody(server string, restaurantId string, orde
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/order/%s/%s", pathParam0, pathParam1)
+	operationPath := fmt.Sprintf("/api/orders/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -429,6 +381,40 @@ func NewGetRestaurantPaymentOptionsRequest(server string, restaurantId string) (
 	}
 
 	operationPath := fmt.Sprintf("/api/payment/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetOrdersOfRestaurantByIDRequest generates requests for GetOrdersOfRestaurantByID
+func NewGetOrdersOfRestaurantByIDRequest(server string, restaurantId string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "restaurant_id", runtime.ParamLocationPath, restaurantId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/restaraunt/%s/orders", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -497,19 +483,19 @@ type ClientWithResponsesInterface interface {
 
 	CreateOrderWithResponse(ctx context.Context, body CreateOrderJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateOrderResponse, error)
 
-	// GetOrdersOfRestaurantByID request
-	GetOrdersOfRestaurantByIDWithResponse(ctx context.Context, restaurantId string, reqEditors ...RequestEditorFn) (*GetOrdersOfRestaurantByIDResponse, error)
-
 	// GetOrderByID request
-	GetOrderByIDWithResponse(ctx context.Context, restaurantId string, orderId string, reqEditors ...RequestEditorFn) (*GetOrderByIDResponse, error)
+	GetOrderByIDWithResponse(ctx context.Context, orderId string, reqEditors ...RequestEditorFn) (*GetOrderByIDResponse, error)
 
 	// UpdateOrderByBot request with any body
-	UpdateOrderByBotWithBodyWithResponse(ctx context.Context, restaurantId string, orderId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateOrderByBotResponse, error)
+	UpdateOrderByBotWithBodyWithResponse(ctx context.Context, orderId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateOrderByBotResponse, error)
 
-	UpdateOrderByBotWithResponse(ctx context.Context, restaurantId string, orderId string, body UpdateOrderByBotJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateOrderByBotResponse, error)
+	UpdateOrderByBotWithResponse(ctx context.Context, orderId string, body UpdateOrderByBotJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateOrderByBotResponse, error)
 
 	// GetRestaurantPaymentOptions request
 	GetRestaurantPaymentOptionsWithResponse(ctx context.Context, restaurantId string, reqEditors ...RequestEditorFn) (*GetRestaurantPaymentOptionsResponse, error)
+
+	// GetOrdersOfRestaurantByID request
+	GetOrdersOfRestaurantByIDWithResponse(ctx context.Context, restaurantId string, reqEditors ...RequestEditorFn) (*GetOrdersOfRestaurantByIDResponse, error)
 }
 
 type GetRestaurantMenuResponse struct {
@@ -556,28 +542,6 @@ func (r CreateOrderResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateOrderResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type GetOrdersOfRestaurantByIDResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *[]Order
-}
-
-// Status returns HTTPResponse.Status
-func (r GetOrdersOfRestaurantByIDResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetOrdersOfRestaurantByIDResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -649,6 +613,28 @@ func (r GetRestaurantPaymentOptionsResponse) StatusCode() int {
 	return 0
 }
 
+type GetOrdersOfRestaurantByIDResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]Order
+}
+
+// Status returns HTTPResponse.Status
+func (r GetOrdersOfRestaurantByIDResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetOrdersOfRestaurantByIDResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 // GetRestaurantMenuWithResponse request returning *GetRestaurantMenuResponse
 func (c *ClientWithResponses) GetRestaurantMenuWithResponse(ctx context.Context, restaurantId string, reqEditors ...RequestEditorFn) (*GetRestaurantMenuResponse, error) {
 	rsp, err := c.GetRestaurantMenu(ctx, restaurantId, reqEditors...)
@@ -675,18 +661,9 @@ func (c *ClientWithResponses) CreateOrderWithResponse(ctx context.Context, body 
 	return ParseCreateOrderResponse(rsp)
 }
 
-// GetOrdersOfRestaurantByIDWithResponse request returning *GetOrdersOfRestaurantByIDResponse
-func (c *ClientWithResponses) GetOrdersOfRestaurantByIDWithResponse(ctx context.Context, restaurantId string, reqEditors ...RequestEditorFn) (*GetOrdersOfRestaurantByIDResponse, error) {
-	rsp, err := c.GetOrdersOfRestaurantByID(ctx, restaurantId, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetOrdersOfRestaurantByIDResponse(rsp)
-}
-
 // GetOrderByIDWithResponse request returning *GetOrderByIDResponse
-func (c *ClientWithResponses) GetOrderByIDWithResponse(ctx context.Context, restaurantId string, orderId string, reqEditors ...RequestEditorFn) (*GetOrderByIDResponse, error) {
-	rsp, err := c.GetOrderByID(ctx, restaurantId, orderId, reqEditors...)
+func (c *ClientWithResponses) GetOrderByIDWithResponse(ctx context.Context, orderId string, reqEditors ...RequestEditorFn) (*GetOrderByIDResponse, error) {
+	rsp, err := c.GetOrderByID(ctx, orderId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -694,16 +671,16 @@ func (c *ClientWithResponses) GetOrderByIDWithResponse(ctx context.Context, rest
 }
 
 // UpdateOrderByBotWithBodyWithResponse request with arbitrary body returning *UpdateOrderByBotResponse
-func (c *ClientWithResponses) UpdateOrderByBotWithBodyWithResponse(ctx context.Context, restaurantId string, orderId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateOrderByBotResponse, error) {
-	rsp, err := c.UpdateOrderByBotWithBody(ctx, restaurantId, orderId, contentType, body, reqEditors...)
+func (c *ClientWithResponses) UpdateOrderByBotWithBodyWithResponse(ctx context.Context, orderId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateOrderByBotResponse, error) {
+	rsp, err := c.UpdateOrderByBotWithBody(ctx, orderId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseUpdateOrderByBotResponse(rsp)
 }
 
-func (c *ClientWithResponses) UpdateOrderByBotWithResponse(ctx context.Context, restaurantId string, orderId string, body UpdateOrderByBotJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateOrderByBotResponse, error) {
-	rsp, err := c.UpdateOrderByBot(ctx, restaurantId, orderId, body, reqEditors...)
+func (c *ClientWithResponses) UpdateOrderByBotWithResponse(ctx context.Context, orderId string, body UpdateOrderByBotJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateOrderByBotResponse, error) {
+	rsp, err := c.UpdateOrderByBot(ctx, orderId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -717,6 +694,15 @@ func (c *ClientWithResponses) GetRestaurantPaymentOptionsWithResponse(ctx contex
 		return nil, err
 	}
 	return ParseGetRestaurantPaymentOptionsResponse(rsp)
+}
+
+// GetOrdersOfRestaurantByIDWithResponse request returning *GetOrdersOfRestaurantByIDResponse
+func (c *ClientWithResponses) GetOrdersOfRestaurantByIDWithResponse(ctx context.Context, restaurantId string, reqEditors ...RequestEditorFn) (*GetOrdersOfRestaurantByIDResponse, error) {
+	rsp, err := c.GetOrdersOfRestaurantByID(ctx, restaurantId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetOrdersOfRestaurantByIDResponse(rsp)
 }
 
 // ParseGetRestaurantMenuResponse parses an HTTP response from a GetRestaurantMenuWithResponse call
@@ -767,32 +753,6 @@ func ParseCreateOrderResponse(rsp *http.Response) (*CreateOrderResponse, error) 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest Order
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseGetOrdersOfRestaurantByIDResponse parses an HTTP response from a GetOrdersOfRestaurantByIDWithResponse call
-func ParseGetOrdersOfRestaurantByIDResponse(rsp *http.Response) (*GetOrdersOfRestaurantByIDResponse, error) {
-	bodyBytes, err := ioutil.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetOrdersOfRestaurantByIDResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []Order
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -861,6 +821,32 @@ func ParseGetRestaurantPaymentOptionsResponse(rsp *http.Response) (*GetRestauran
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest []PaymentOption
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetOrdersOfRestaurantByIDResponse parses an HTTP response from a GetOrdersOfRestaurantByIDWithResponse call
+func ParseGetOrdersOfRestaurantByIDResponse(rsp *http.Response) (*GetOrdersOfRestaurantByIDResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetOrdersOfRestaurantByIDResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []Order
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

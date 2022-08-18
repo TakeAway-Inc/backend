@@ -51,7 +51,7 @@ paths:
         200:
           $ref: '#/components/responses/createOrderResp'
 
-  /api/order/{restaurant_id}:
+  /api/restaraunt/{restaurant_id}/orders:
     parameters:
       - name: restaurant_id
         in: path
@@ -66,14 +66,8 @@ paths:
         200:
           $ref: '#/components/responses/getOrdersResp'
 
-  /api/order/{restaurant_id}/{order_id}:
+  /api/orders/{order_id}:
     parameters:
-      - name: restaurant_id
-        in: path
-        description: Restaurant ID or restaurant short name
-        required: true
-        schema:
-          type: string
       - name: order_id
         in: path
         description: ID of order
