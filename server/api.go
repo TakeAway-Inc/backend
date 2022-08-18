@@ -9,6 +9,26 @@ import (
 	"github.com/TakeAway-Inc/backend/api"
 )
 
+func (s *Server) CreateOrder(w http.ResponseWriter, r *http.Request) {
+	// TODO implement me
+	panic("implement me")
+}
+
+func (s *Server) GetOrdersOfRestaurantByID(w http.ResponseWriter, r *http.Request, restaurantId string) {
+	// TODO implement me
+	panic("implement me")
+}
+
+func (s *Server) GetOrderByID(w http.ResponseWriter, r *http.Request, restaurantId string, orderId string) {
+	// TODO implement me
+	panic("implement me")
+}
+
+func (s *Server) UpdateOrderByBot(w http.ResponseWriter, r *http.Request, restaurantId string, orderId string) {
+	// TODO implement me
+	panic("implement me")
+}
+
 func (s *Server) GetRestaurantPaymentOptions(w http.ResponseWriter, r *http.Request, restaurantId string) {
 	ctx := r.Context()
 
@@ -26,7 +46,7 @@ func (s *Server) GetRestaurantPaymentOptions(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	resp := api.GetPaymentOptionsResponse(paymentOptions)
+	resp := api.GetPaymentOptionsResp(paymentOptions)
 
 	bb, err := json.Marshal(resp)
 	if err != nil {
@@ -68,7 +88,7 @@ func (s *Server) GetRestaurantMenu(w http.ResponseWriter, r *http.Request, resta
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	resp := api.GetRestaurantResponse{
+	resp := api.GetRestaurantResp{
 		Categories: categories,
 		Dishes:     dishes,
 		Style:      style,

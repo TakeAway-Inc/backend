@@ -121,17 +121,20 @@ type UpdatedOrderByBot struct {
 // UpdatedOrderByBotStatus defines model for UpdatedOrderByBot.Status.
 type UpdatedOrderByBotStatus string
 
-// CreateOrderResponse defines model for createOrderResponse.
-type CreateOrderResponse Order
+// CreateOrderResp defines model for createOrderResp.
+type CreateOrderResp Order
 
-// GetOrderResponse defines model for getOrderResponse.
-type GetOrderResponse Order
+// GetOrderResp defines model for getOrderResp.
+type GetOrderResp Order
 
-// GetPaymentOptionsResponse defines model for getPaymentOptionsResponse.
-type GetPaymentOptionsResponse []PaymentOption
+// GetOrdersResp defines model for getOrdersResp.
+type GetOrdersResp []Order
 
-// GetRestaurantResponse defines model for getRestaurantResponse.
-type GetRestaurantResponse struct {
+// GetPaymentOptionsResp defines model for getPaymentOptionsResp.
+type GetPaymentOptionsResp []PaymentOption
+
+// GetRestaurantResp defines model for getRestaurantResp.
+type GetRestaurantResp struct {
 	Categories []Category `json:"categories"`
 
 	// Отсортированный список блюд

@@ -565,7 +565,7 @@ func (r CreateOrderResponse) StatusCode() int {
 type GetOrdersOfRestaurantByIDResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *Order
+	JSON200      *[]Order
 }
 
 // Status returns HTTPResponse.Status
@@ -792,7 +792,7 @@ func ParseGetOrdersOfRestaurantByIDResponse(rsp *http.Response) (*GetOrdersOfRes
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Order
+		var dest []Order
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

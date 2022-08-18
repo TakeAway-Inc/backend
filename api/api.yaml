@@ -19,7 +19,7 @@ paths:
       description: ''
       responses:
         200:
-          $ref: '#/components/responses/getRestaurantResponse'
+          $ref: '#/components/responses/getRestaurantResp'
 
   /api/payment/{restaurant_id}:
     parameters:
@@ -34,7 +34,7 @@ paths:
       description: ''
       responses:
         200:
-          $ref: '#/components/responses/getPaymentOptionsResponse'
+          $ref: '#/components/responses/getPaymentOptionsResp'
 
 
   /api/order:
@@ -49,7 +49,7 @@ paths:
               $ref: '#/components/schemas/newOrder'
       responses:
         200:
-          $ref: '#/components/responses/createOrderResponse'
+          $ref: '#/components/responses/createOrderResp'
 
   /api/order/{restaurant_id}:
     parameters:
@@ -64,7 +64,7 @@ paths:
       description: ''
       responses:
         200:
-          $ref: '#/components/responses/getOrderResponse'
+          $ref: '#/components/responses/getOrdersResp'
 
   /api/order/{restaurant_id}/{order_id}:
     parameters:
@@ -85,7 +85,7 @@ paths:
       description: ''
       responses:
         200:
-          $ref: '#/components/responses/getOrderResponse'
+          $ref: '#/components/responses/getOrderResp'
     put:
       operationId: updateOrderByBot
       description: ''
@@ -101,14 +101,14 @@ paths:
 
 components:
   responses:
-    getOrderResponse:
+    getOrderResp:
       description: Order response
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/order'
 
-    getOrdersResponse:
+    getOrdersResp:
       description: Order response
       content:
         application/json:
@@ -117,14 +117,14 @@ components:
             items:
               $ref: '#/components/schemas/order'
 
-    createOrderResponse:
+    createOrderResp:
       description: Order response
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/order'
 
-    getPaymentOptionsResponse:
+    getPaymentOptionsResp:
       description: ''
       content:
         application/json:
@@ -133,7 +133,7 @@ components:
             items:
               $ref: '#/components/schemas/paymentOption'
 
-    getRestaurantResponse:
+    getRestaurantResp:
       description: Full content of the restaurant's menu
       content:
         application/json:
