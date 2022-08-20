@@ -41,7 +41,7 @@ services:
       - minio_data:/data
   backend:
     build: .
-    #    command: bash -c "cd migrations; goose postgres "host=db user=mydbuser password=mydbpwd dbname=postgres sslmode=disable" up; cd .."
+    #    command: bash -c "cd migrations; goose postgres "host=localhost user=postgres password=postgres dbname=postgres sslmode=disable" up; cd .."
     volumes:
       - ./config.yaml:/config.yaml
     depends_on:

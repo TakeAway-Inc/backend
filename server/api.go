@@ -9,19 +9,73 @@ import (
 	"github.com/TakeAway-Inc/backend/api"
 )
 
-func (s *Server) CreateOrder(w http.ResponseWriter, r *http.Request) {
-	// TODO implement me
-	panic("implement me")
+func doResponse(w http.ResponseWriter, r *http.Request, staticUrl string, resp interface{}) {
+	bb, err := json.Marshal(resp)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	bb = bytes.Replace(bb, []byte("%static%"), []byte(staticUrl), -1)
+
+	if _, err = w.Write(bb); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (s *Server) CreateOrder(w http.ResponseWriter, r *http.Request, restaurantId string) {
+	ctx := r.Context()
+
+	var newOrder api.NewOrder
+
+	if err := json.NewDecoder(r.Body).Decode(&newOrder); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	orderId, err := s.db.CreateOrder(ctx, newOrder, restaurantId)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	order, err := s.db.GetOrder(ctx, orderId)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	resp := api.CreateOrderResp(order)
+	doResponse(w, r, s.staticUrl, resp)
 }
 
 func (s *Server) GetOrdersOfRestaurantByID(w http.ResponseWriter, r *http.Request, restaurantId string) {
-	// TODO implement me
-	panic("implement me")
+	ctx := r.Context()
+
+	orders, err := s.db.GetOrdersOfRestaurant(ctx, restaurantId)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	resp := api.GetOrdersResp(orders)
+	doResponse(w, r, s.staticUrl, resp)
 }
 
 func (s *Server) GetOrderByID(w http.ResponseWriter, r *http.Request, orderId string) {
-	// TODO implement me
-	panic("implement me")
+	ctx := r.Context()
+
+	order, err := s.db.GetOrder(ctx, orderId)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	resp := api.GetOrderResp(order)
+	doResponse(w, r, s.staticUrl, resp)
 }
 
 func (s *Server) UpdateOrderByBot(w http.ResponseWriter, r *http.Request, orderId string) {

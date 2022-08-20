@@ -45,8 +45,8 @@ type Dish struct {
 	Carbohydrates   *int   `json:"carbohydrates,omitempty"`
 	CategoryId      string `json:"categoryId"`
 	Description     string `json:"description"`
+	DishId          string `json:"dishId"`
 	Fats            *int   `json:"fats,omitempty"`
-	Id              string `json:"id"`
 	ImageUrl        string `json:"imageUrl"`
 	PreviewImageUrl string `json:"previewImageUrl"`
 	Price           struct {
@@ -81,8 +81,8 @@ type OrderStatus string
 // OrderPosition defines model for orderPosition.
 type OrderPosition struct {
 	// Связь с `category` по `categoryId`
-	Dish     Dish    `json:"dish"`
-	Quantity float32 `json:"quantity"`
+	Dish     Dish `json:"dish"`
+	Quantity int  `json:"quantity"`
 }
 
 // Payment option
@@ -142,14 +142,14 @@ type GetRestaurantResp struct {
 	Style  RestaurantStyle `json:"style"`
 }
 
-// CreateOrderJSONBody defines parameters for CreateOrder.
-type CreateOrderJSONBody NewOrder
-
 // UpdateOrderByBotJSONBody defines parameters for UpdateOrderByBot.
 type UpdateOrderByBotJSONBody UpdatedOrderByBot
 
-// CreateOrderJSONRequestBody defines body for CreateOrder for application/json ContentType.
-type CreateOrderJSONRequestBody CreateOrderJSONBody
+// CreateOrderJSONBody defines parameters for CreateOrder.
+type CreateOrderJSONBody NewOrder
 
 // UpdateOrderByBotJSONRequestBody defines body for UpdateOrderByBot for application/json ContentType.
 type UpdateOrderByBotJSONRequestBody UpdateOrderByBotJSONBody
+
+// CreateOrderJSONRequestBody defines body for CreateOrder for application/json ContentType.
+type CreateOrderJSONRequestBody CreateOrderJSONBody

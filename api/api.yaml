@@ -37,7 +37,14 @@ paths:
           $ref: '#/components/responses/getPaymentOptionsResp'
 
 
-  /api/order:
+  /api/restaurant/{restaurant_id}/orders:
+    parameters:
+      - name: restaurant_id
+        in: path
+        description: Restaurant ID or restaurant short name
+        required: true
+        schema:
+          type: string
     post:
       operationId: createOrder
       description: ''
@@ -208,7 +215,7 @@ components:
         dish:
           $ref: '#/components/schemas/dish'
         quantity:
-          type: number
+          type: integer
 
     paymentOption:
       type: object
@@ -250,7 +257,7 @@ components:
       type: object
       description: Связь с `category` по `categoryId`
       required:
-        - id
+        - dishId
         - shownName
         - description
         - previewImageUrl
@@ -258,7 +265,7 @@ components:
         - categoryId
         - price
       properties:
-        id:
+        dishId:
           type: string
           format: uuid
         shownName:
